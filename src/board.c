@@ -65,7 +65,7 @@ void brd_render(ChessBoard board, WINDOW *win)
     for (int row = 0; row < BRD_SIZE; row++) {
         // Print the left side of each row. Ex: 2|
         wchar_t left_side[3] = { 0 };
-        swprintf(left_side, 3, L"%d%lc", row, SYMBOL_BOX_VERTICAL);
+        swprintf(left_side, 3, L"%d%lc", 8 - row, SYMBOL_BOX_VERTICAL);
         waddwstr(win, left_side);
 
         // Print 8 positions in the row. Each position is two characters wide
