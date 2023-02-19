@@ -99,6 +99,11 @@ void brd_render(ChessBoard board, WINDOW *win)
     }
 }
 
+void brd_clear(WINDOW *win)
+{
+    werase(win);
+}
+
 static void create_horizontal_line(wchar_t data[], int width, int left_padding,
                             wchar_t start_char, wchar_t end_char)
 {

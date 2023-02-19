@@ -5,11 +5,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <wctype.h>
 
 #include <ncursesw/curses.h>
 
+#include "ai.h"
 #include "board.h"
+#include "gamelogic.h"
 
 
 #define INPUT_BUF_SIZE 20
@@ -19,7 +22,18 @@
 static void interactive_session(WINDOW *game_win, WINDOW *prompt_win);
 
 /** Play a single chess game. */
-static void play_game(ChessBoard board, WINDOW *game_win, WINDOW *prompt_win);
+static void play_game(WINDOW *game_win, WINDOW *prompt_win);
+
+/** Initialize a player's type by prompting the user. */
+static void init_player_type(WINDOW *prompt_win, ChessPlayer *player);
+
+/**
+ * Ask the player for a move. The return value signifies whether the game should
+ * end (whether the player cannot move or they have announced a draw). Only
+ * return a valid move, by prompting the user repeatedly if it is invalid.
+ */
+static bool human_player_move(WINDOW *prompt_win, ChessBoard *board,
+                              ChessPlayer *player, ChessMove *move);
 
 /********** Prompt window utilities. **********/
 
@@ -87,10 +101,10 @@ int main(void)
 static void interactive_session(WINDOW *game_win, WINDOW *prompt_win)
 {
     while (true) {
-        ChessBoard board;
-        brd_init(board);
+        wclear(game_win);
+        wrefresh(game_win);
 
-        play_game(board, game_win, prompt_win);
+        play_game(game_win, prompt_win);
 
         wchar_t play_again;
         if (prompt_win_wscanf(prompt_win, L"Do you want to play again? [y/N] ", L"%lc", &play_again) == 1) {
@@ -102,23 +116,90 @@ static void interactive_session(WINDOW *game_win, WINDOW *prompt_win)
     }
 }
 
-static void play_game(ChessBoard board, WINDOW *game_win, WINDOW *prompt_win)
+static void play_game(WINDOW *game_win, WINDOW *prompt_win)
 {
-    (void)prompt_win;
-    brd_render(board, game_win);
-    wrefresh(game_win);
+    ChessPlayer player1, player2;
+
+    player1.is_white = true;
+    prompt_win_message(prompt_win, L"Configure player 1 (white)...");
+    sleep(1);
+    init_player_type(prompt_win, &player1);
+
+    player2.is_white = false;
+    prompt_win_message(prompt_win, L"Configure player 2 (black)...");
+    sleep(1);
+    init_player_type(prompt_win, &player2);
+
+    ChessBoard board;
+    brd_init(board);
+
+    bool current_player_is_player1 = true;
+
+    // Game loop.
+    bool should_game_continue = true;
+    while (should_game_continue) {
+        ChessPlayer *current_player;
+        if (current_player_is_player1) {
+            current_player = &player1;
+        } else {
+            current_player = &player2;
+        }
+
+        brd_render(board, game_win);
+        wrefresh(game_win);
+
+        ChessMove move;
+
+        // We only check if a player has lost on their turn to make things more
+        // efficient. If a player has performed a checkmate, it will be caught
+        // in the next player's turn.
+        if (current_player->is_human) {
+            should_game_continue = human_player_move(prompt_win, &board, current_player, &move);
+        } else {
+            should_game_continue = ai_player_move(prompt_win, &board, current_player, &move);
+        }
+
+        current_player_is_player1 = !current_player_is_player1;
+    }
+
+    if (player1.has_lost) {
+        prompt_win_message(prompt_win, L"Player 2 has won!");
+    } else if (player2.has_lost) {
+        prompt_win_message(prompt_win, L"Player 1 has won!");
+    } else {
+        prompt_win_message(prompt_win, L"A draw ocurred.");
+    }
+    sleep(2);
+}
+
+static void init_player_type(WINDOW *prompt_win, ChessPlayer *player)
+{
+    while (true) {
+        wchar_t player_type;
+        if (prompt_win_wscanf(prompt_win, L"PLayer type [(h)uman/(b)ot]: ", L"%lc", &player_type) == 1) {
+            if (towupper(player_type) == 'H') {
+                player->is_human = true;
+                break;
+            } else if (towupper(player_type) == 'B') {
+                player->is_human = false;
+                break;
+            }
+        }
+        // Invalid type.
+        prompt_win_message(prompt_win, L"Invalid player type.");
+    }
+}
+
+static bool human_player_move(WINDOW *prompt_win, ChessBoard *board,
+                              ChessPlayer *player, ChessMove *move)
+{
+    return false;
 }
 
 /* Prompt window utilities. */
 static void prompt_win_clear(WINDOW *win)
 {
-    int rows, cols;
-    (void)rows;
-    getmaxyx(win, rows, cols);
-
-    for (int i = 0; i < cols; i++) {
-        mvwaddwstr(win, 0, i, L" ");
-    }
+    werase(win);
 }
 
 static void prompt_win_message(WINDOW *win, const wchar_t *message)

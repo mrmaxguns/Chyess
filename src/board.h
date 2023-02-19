@@ -69,4 +69,7 @@ void brd_init(ChessBoard board);
  */
 void brd_render(ChessBoard board, WINDOW *win);
 
+/** Clear the board window. */
+void brd_clear(WINDOW *win);
+
 #endif
