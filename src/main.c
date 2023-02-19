@@ -33,7 +33,7 @@ static void init_player_type(WINDOW *prompt_win, ChessPlayer *player);
  * return a valid move, by prompting the user repeatedly if it is invalid.
  */
 static bool human_player_move(WINDOW *prompt_win, ChessBoard *board,
-                              ChessPlayer *player, ChessMove *move);
+                              ChessPlayer *player);
 
 /********** Prompt window utilities. **********/
 
@@ -148,15 +148,13 @@ static void play_game(WINDOW *game_win, WINDOW *prompt_win)
         brd_render(board, game_win);
         wrefresh(game_win);
 
-        ChessMove move;
-
         // We only check if a player has lost on their turn to make things more
         // efficient. If a player has performed a checkmate, it will be caught
         // in the next player's turn.
         if (current_player->is_human) {
-            should_game_continue = human_player_move(prompt_win, &board, current_player, &move);
+            should_game_continue = human_player_move(prompt_win, &board, current_player);
         } else {
-            should_game_continue = ai_player_move(prompt_win, &board, current_player, &move);
+            should_game_continue = ai_player_move(prompt_win, &board, current_player);
         }
 
         current_player_is_player1 = !current_player_is_player1;
@@ -190,8 +188,7 @@ static void init_player_type(WINDOW *prompt_win, ChessPlayer *player)
     }
 }
 
-static bool human_player_move(WINDOW *prompt_win, ChessBoard *board,
-                              ChessPlayer *player, ChessMove *move)
+static bool human_player_move(WINDOW *prompt_win, ChessBoard *board, ChessPlayer *player)
 {
     return false;
 }

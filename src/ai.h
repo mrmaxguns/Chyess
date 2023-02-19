@@ -14,7 +14,6 @@
  * for validity, at the tradeoff of performance. Return value signifies whether
  * the game should end (AI has lost).
  */
-bool ai_player_move(WINDOW *prompt_win, ChessBoard *board, ChessPlayer *player,
-                    ChessMove *move);
+bool ai_player_move(WINDOW *prompt_win, ChessBoard *board, ChessPlayer *player);
 
 #endif

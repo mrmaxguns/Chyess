@@ -9,8 +9,4 @@ typedef struct {
     bool has_lost; /** Whether the player has lost the game. */
 } ChessPlayer;
 
-typedef struct {
-
-} ChessMove;
-
 #endif

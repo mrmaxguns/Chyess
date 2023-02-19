@@ -2,8 +2,7 @@
 
 #include "ai.h"
 
-bool ai_player_move(WINDOW *prompt_win, ChessBoard *board, ChessPlayer *player,
-                    ChessMove *move)
+bool ai_player_move(WINDOW *prompt_win, ChessBoard *board, ChessPlayer *player)
 {
     return false;
 }
