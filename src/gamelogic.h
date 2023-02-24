@@ -1,3 +1,7 @@
+/**
+ * Implementation of chess move validation, board information, and algebraic
+ * notation parsing utilities.
+ */
 #ifndef CHESS_GAME_LOGIC
 #define CHESS_GAME_LOGIC
 

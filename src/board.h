@@ -1,3 +1,6 @@
+/**
+ * Functions for handling and rendering the chess board.
+ */
 #ifndef CHESS_BOARD_H
 #define CHESS_BOARD_H
 

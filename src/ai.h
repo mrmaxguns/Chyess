@@ -1,3 +1,6 @@
+/**
+ * Implementation of MaxBF's chess bot algorithm.
+ */
 #ifndef CHESS_AI_H
 #define CHESS_AI_H
 
