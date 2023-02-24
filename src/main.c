@@ -161,9 +161,9 @@ static void play_game(WINDOW *game_win, WINDOW *prompt_win)
         current_player_is_white = !current_player_is_white;
     }
 
-    if (white_player.has_lost) {
+    if (game_status == WS_WHITE) {
         prompt_win_message(prompt_win, L"Player 2 has won!");
-    } else if (black_player.has_lost) {
+    } else if (game_status == WS_BLACK) {
         prompt_win_message(prompt_win, L"Player 1 has won!");
     } else {
         prompt_win_message(prompt_win, L"A draw ocurred.");
