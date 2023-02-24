@@ -7,6 +7,7 @@
 
 #include <ncursesw/curses.h>
 
+
 // Actual width and height of the chess board.
 #define BRD_SIZE 8
 
@@ -36,6 +37,7 @@
 #define SYMBOL_BLACK_KNIGHT L'\u265E'
 #define SYMBOL_BLACK_PAWN   L'\u265F'
 
+
 /** Represents the spaces on the chess board. */
 typedef enum {
     PC_NULL, /** Represents no chess piece on a given square. */
@@ -57,6 +59,7 @@ typedef enum {
 
 /** Represents a standard chess board. */
 typedef ChessPiece ChessBoard[BRD_SIZE][BRD_SIZE];
+
 
 /**
  * Initialize a chess board by overwriting all pieces. White is always at the

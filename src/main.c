@@ -1,3 +1,8 @@
+/*
+ * Entrypoint for Chyess.
+ *
+ * Implements UI and user input handling functions.
+ */
 #define _XOPEN_SOURCE_EXTENDED
 
 #include <locale.h>
@@ -15,7 +20,7 @@
 #include "gamelogic.h"
 
 
-#define INPUT_BUF_SIZE 20
+#define INPUT_BUF_SIZE 20 /** The size of the input buffer used by prompt_win. */
 
 
 /** Play a game of chess again and again until the user decides to quit. */
@@ -29,13 +34,11 @@ static void init_player_type(WINDOW *prompt_win, ChessPlayer *player);
 
 /**
  * Ask the player for a move. The return value signifies whether the game should
- * end (whether the player cannot move or they have announced a draw). Only
- * return a valid move, by prompting the user repeatedly if it is invalid.
+ * end. Only return a valid move, by prompting the user repeatedly if it is invalid.
  */
-static bool human_player_move(WINDOW *prompt_win, ChessBoard *board,
-                              ChessPlayer *player);
+static WinStatus human_player_move(WINDOW *prompt_win, ChessBoard board, ChessPlayer *player);
 
-/********** Prompt window utilities. **********/
+/********** Prompt window utilities **********/
 
 /** Clear the prompt window. Do not refresh. */
 static void prompt_win_clear(WINDOW *win);
@@ -46,7 +49,7 @@ static void prompt_win_message(WINDOW *win, const wchar_t *message);
 /**
  * Prompt the user for an answer up to `INPUT_BUF_SIZE` characters long. Refresh
  * the window as needed, but do not refresh once the user has submitted their
- * answer. 
+ * answer.
  */
 static void prompt_win_input(WINDOW *win, const wchar_t *prompt, wchar_t response[INPUT_BUF_SIZE + 1]);
 
@@ -54,6 +57,7 @@ static void prompt_win_input(WINDOW *win, const wchar_t *prompt, wchar_t respons
  * Prompt the user and parse the input like wscanf.
  */
 static int prompt_win_wscanf(WINDOW *win, const wchar_t *prompt, const wchar_t *format, ...);
+
 
 int main(void)
 {
@@ -118,51 +122,48 @@ static void interactive_session(WINDOW *game_win, WINDOW *prompt_win)
 
 static void play_game(WINDOW *game_win, WINDOW *prompt_win)
 {
-    ChessPlayer player1, player2;
+    ChessPlayer white_player, black_player;
 
-    player1.is_white = true;
-    prompt_win_message(prompt_win, L"Configure player 1 (white)...");
+    white_player.is_white = true;
+    prompt_win_message(prompt_win, L"Configure player (white)...");
     sleep(1);
-    init_player_type(prompt_win, &player1);
+    init_player_type(prompt_win, &white_player);
 
-    player2.is_white = false;
-    prompt_win_message(prompt_win, L"Configure player 2 (black)...");
+    black_player.is_white = false;
+    prompt_win_message(prompt_win, L"Configure player (black)...");
     sleep(1);
-    init_player_type(prompt_win, &player2);
+    init_player_type(prompt_win, &black_player);
 
     ChessBoard board;
     brd_init(board);
 
-    bool current_player_is_player1 = true;
+    bool current_player_is_white = true;
 
     // Game loop.
-    bool should_game_continue = true;
-    while (should_game_continue) {
+    WinStatus game_status = WS_CONTINUE;
+    while (game_status == WS_CONTINUE) {
         ChessPlayer *current_player;
-        if (current_player_is_player1) {
-            current_player = &player1;
+        if (current_player_is_white) {
+            current_player = &white_player;
         } else {
-            current_player = &player2;
+            current_player = &black_player;
         }
 
         brd_render(board, game_win);
         wrefresh(game_win);
 
-        // We only check if a player has lost on their turn to make things more
-        // efficient. If a player has performed a checkmate, it will be caught
-        // in the next player's turn.
         if (current_player->is_human) {
-            should_game_continue = human_player_move(prompt_win, &board, current_player);
+            game_status = human_player_move(prompt_win, board, current_player);
         } else {
-            should_game_continue = ai_player_move(prompt_win, &board, current_player);
+            game_status = ai_player_move(board, current_player);
         }
 
-        current_player_is_player1 = !current_player_is_player1;
+        current_player_is_white = !current_player_is_white;
     }
 
-    if (player1.has_lost) {
+    if (white_player.has_lost) {
         prompt_win_message(prompt_win, L"Player 2 has won!");
-    } else if (player2.has_lost) {
+    } else if (black_player.has_lost) {
         prompt_win_message(prompt_win, L"Player 1 has won!");
     } else {
         prompt_win_message(prompt_win, L"A draw ocurred.");
@@ -188,9 +189,36 @@ static void init_player_type(WINDOW *prompt_win, ChessPlayer *player)
     }
 }
 
-static bool human_player_move(WINDOW *prompt_win, ChessBoard *board, ChessPlayer *player)
+static WinStatus human_player_move(WINDOW *prompt_win, ChessBoard board, ChessPlayer *player)
 {
-    return false;
+    if (player->is_white) {
+        prompt_win_message(prompt_win, L"White's turn...");
+    } else {
+        prompt_win_message(prompt_win, L"Black's turn...");
+    }
+    sleep(1);
+
+    while (true) {
+        wchar_t move_instruction[INPUT_BUF_SIZE + 1];
+        prompt_win_input(prompt_win, L"Move (algebraic notation): ", move_instruction);
+
+        ChessMove user_move;
+        if (!parse_algebraic_notation(move_instruction, user_move)) {
+            prompt_win_message(prompt_win, L"Invalid move, incorrect use of algebraic notation.");
+            sleep(1);
+            continue;
+        }
+
+        if (!make_move(board, user_move)) {
+            prompt_win_message(prompt_win, L"Invalid move.");
+            sleep(1);
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    return should_game_end(board);
 }
 
 /* Prompt window utilities. */

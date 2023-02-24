@@ -1,8 +1,10 @@
 #define _XOPEN_SOURCE_EXTENDED
 
 #include "ai.h"
+#include "gamelogic.h"
 
-bool ai_player_move(WINDOW *prompt_win, ChessBoard *board, ChessPlayer *player)
+
+WinStatus ai_player_move(ChessBoard board, ChessPlayer *player)
 {
     return false;
 }
