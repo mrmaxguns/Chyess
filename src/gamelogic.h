@@ -64,7 +64,7 @@ typedef enum {
  * of the board layout. In those cases, the special move is set to SPECIAL_MOVE_NULL.
  * These special move types are used internally by `make_move`.
  */
-bool parse_algebraic_notation(wchar_t *notation, ChessPlayer *player, ChessMove *chess_move);
+bool parse_algebraic_notation(const wchar_t *notation, ChessPlayer *player, ChessMove *chess_move);
 
 /** Apply `chess_move` to `board`. Return true only if the move can be made. */
 bool make_move(ChessBoard board, ChessMove *chess_move);

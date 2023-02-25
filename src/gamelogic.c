@@ -12,21 +12,22 @@
 #define ALGEBRAIC_BISHOP L'B'
 #define ALGEBRAIC_KNIGHT L'N'
 
+
 const wchar_t files[] = { L'a', L'b', L'c', L'd', L'e', L'f', L'g', L'h' };
 const int num_files = 8;
 
 
 /** Parse a move in algebraic notation that is not castling/draw offer. */
-static bool parse_algebraic_move(wchar_t *notation, ChessMove *chess_move);
+static bool parse_algebraic_move(const wchar_t *notation, ChessMove *chess_move);
 
 /** Parse a castling move in algebraic notation. */
-static bool parse_algebraic_castling(wchar_t *notation, ChessMove *chess_move);
+static bool parse_algebraic_castling(const wchar_t *notation, ChessMove *chess_move);
 
 /** Given a letter, such as Q, and a ChessMove, return the correct ChessPiece object. */
 static ChessPiece get_piece_from_algebraic(wchar_t letter, ChessMove *chess_move);
 
 
-bool parse_algebraic_notation(wchar_t *notation, ChessPlayer *player, ChessMove *chess_move)
+bool parse_algebraic_notation(const wchar_t *notation, ChessPlayer *player, ChessMove *chess_move)
 {
     chess_move->player = player;
     chess_move->piece = PC_NULL;
@@ -48,7 +49,7 @@ bool parse_algebraic_notation(wchar_t *notation, ChessPlayer *player, ChessMove 
     }
 }
 
-static bool parse_algebraic_move(wchar_t *notation, ChessMove *chess_move)
+static bool parse_algebraic_move(const wchar_t *notation, ChessMove *chess_move)
 {
     const unsigned char not_chosen = 0, chosen_empty = 1, chosen = 2;
 
@@ -61,7 +62,7 @@ static bool parse_algebraic_move(wchar_t *notation, ChessMove *chess_move)
     bool rank_end_chosen  = false;
     bool promotion_chosen = false;
 
-    for (wchar_t *letter = notation; *letter; letter++) {
+    for (const wchar_t *letter = notation; *letter; letter++) {
         if (*letter == L'x' || *letter == L'+' || *letter == L'=' || *letter == L'#') {
             continue;
         } else if (!letter_chosen) {
@@ -158,7 +159,7 @@ static bool parse_algebraic_move(wchar_t *notation, ChessMove *chess_move)
     return true;
 }
 
-static bool parse_algebraic_castling(wchar_t *notation, ChessMove *chess_move)
+static bool parse_algebraic_castling(const wchar_t *notation, ChessMove *chess_move)
 {
     if (wcscmp(notation, L"0-0")) {
         chess_move->move_type = SPECIAL_MOVE_CASTLING;
@@ -171,7 +172,7 @@ static bool parse_algebraic_castling(wchar_t *notation, ChessMove *chess_move)
     }
 }
 
-static ChessPiece get_piece_from_algebraic(wchar_t letter, ChessMove *chess_move)
+static ChessPiece get_piece_from_algebraic(const wchar_t letter, ChessMove *chess_move)
 {
     switch (towupper(letter)) {
         case ALGEBRAIC_KING:
