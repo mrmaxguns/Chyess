@@ -203,13 +203,13 @@ static WinStatus human_player_move(WINDOW *prompt_win, ChessBoard board, ChessPl
         prompt_win_input(prompt_win, L"Move (algebraic notation): ", move_instruction);
 
         ChessMove user_move;
-        if (!parse_algebraic_notation(move_instruction, user_move)) {
+        if (!parse_algebraic_notation(move_instruction, player, &user_move)) {
             prompt_win_message(prompt_win, L"Invalid move, incorrect use of algebraic notation.");
             sleep(1);
             continue;
         }
 
-        if (!make_move(board, user_move)) {
+        if (!make_move(board, &user_move)) {
             prompt_win_message(prompt_win, L"Invalid move.");
             sleep(1);
             continue;

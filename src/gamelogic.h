@@ -55,12 +55,19 @@ typedef enum {
 } WinStatus;
 
 
-/** Parse algebraic notation defined in the string `notation` and store it in
-    `chess_move` if valid. Return true only if the notation is valid. */
-bool parse_algebraic_notation(wchar_t *notation, ChessMove chess_move);
+/**
+ * Parse algebraic notation defined in the string `notation` and store it in
+ * `chess_move` if valid. Return true only if the notation is valid.
+ *
+ * The special move types SPECIAL_MOVE_CAPTURE, SPECIAL_MOVE_EN_PASSANT, SPECIAL_MOVE_CHECK,
+ * and SPECIAL_MOVE_CHECKMATE are not set because setting them requires knowledge
+ * of the board layout. In those cases, the special move is set to SPECIAL_MOVE_NULL.
+ * These special move types are used internally by `make_move`.
+ */
+bool parse_algebraic_notation(wchar_t *notation, ChessPlayer *player, ChessMove *chess_move);
 
 /** Apply `chess_move` to `board`. Return true only if the move can be made. */
-bool make_move(ChessBoard board, ChessMove chess_move);
+bool make_move(ChessBoard board, ChessMove *chess_move);
 
 /** Return a win status depending on the current state of the game. */
 WinStatus should_game_end(ChessBoard board);
