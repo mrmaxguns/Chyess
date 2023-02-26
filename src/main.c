@@ -67,7 +67,7 @@ int main(void)
 
     if (has_colors() == FALSE) {
         endwin();
-        fprintf(stderr, "Your terminal does not support color.\n");
+        fwprintf(stderr, L"Your terminal does not support color.\n");
         return EXIT_FAILURE;
     }
     start_color();

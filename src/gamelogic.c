@@ -16,6 +16,16 @@
 const wchar_t files[] = { L'a', L'b', L'c', L'd', L'e', L'f', L'g', L'h' };
 const int num_files = 8;
 
+typedef enum {
+    CURRENT_PC_NULL,
+    CURRENT_PC_KING,
+    CURRENT_PC_QUEEN,
+    CURRENT_PC_ROOK,
+    CURRENT_PC_BISHOP,
+    CURRENT_PC_KNIGHT,
+    CURRENT_PC_PAWN,
+} RelativeChessPiece;
+
 
 /** Parse a move in algebraic notation that is not castling/draw offer. */
 static bool parse_algebraic_move(const wchar_t *notation, ChessMove *chess_move);
@@ -87,7 +97,7 @@ static bool parse_algebraic_move(const wchar_t *notation, ChessMove *chess_move)
                 letter--;
             }
         } else if (rank_start_chosen == not_chosen) {
-            wint_t rank = *letter - '0';
+            wint_t rank = *letter - L'0';
             if (rank < 1 || rank > 8) {
                 rank_start_chosen = chosen_empty;
                 letter--;
@@ -123,7 +133,7 @@ static bool parse_algebraic_move(const wchar_t *notation, ChessMove *chess_move)
                 letter--;
             }
         } else if (!rank_end_chosen) {
-            wint_t rank = *letter - '0';
+            wint_t rank = *letter - L'0';
             if (rank < 1 || rank > 8) {
                 return false;
             } else {
